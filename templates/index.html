@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Documentation</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+<ul id="navigation">
+    {% for request in requests %}
+    <li><a href="{{ request.page_path }}">{{ request.name }}</a></li>
+    {% endfor %}
+</ul>
+</body>
+</html>

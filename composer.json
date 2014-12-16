@@ -7,5 +7,7 @@
             "email": "me@jakeworrell.co.uk"
         }
     ],
-    "require": {}
+    "require": {
+        "twig/twig": "1.16.*@dev"
+    }
 }

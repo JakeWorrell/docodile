@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{request.name}}</title>
+    <link rel="stylesheet" type="text/css" href="../styles.css">
+</head>
+<body><h1> {{request.name}} </h1>
+
+<h2>Request Information</h2>
+<pre><code>{{request.method}} {{request.url}}</code></pre>
+
+{% if request.description %}
+<h3> Description </h3>
+<p> {{request.description}} </p>
+{% endif %}
+
+{% if request.data | length >0 %}
+<h3> Parameters </h3>
+<table>
+    <thead>
+    <tr>
+        <th>Key</th>
+        <th>Example Value</th>
+    </tr>
+    </thead>
+    {% for parameter in request.data %}
+    <tr>
+        <td>{{parameter.key}}</td>
+        <td>{{parameter.value}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+{% if request.responses | length >0 %}
+<h2>Example responses</h2>
+    {% for response in request.responses %}
+        <h3> {{response.name}} </h3>
+        <h4> Request </h4>
+        <pre><code>{{response.request.method}} {{response.request.url}}?{{querify(response.request.data)}}</code>
+        </pre>
+        <h4> Response </h4>
+        <pre><code>{{response.text}}</code>
+        </pre>
+    {% endfor %}
+{% endif %}
+
+
+</body>
+</html>
