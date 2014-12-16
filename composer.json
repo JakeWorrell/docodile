@@ -1,0 +1,11 @@
+{
+    "name": "jakeworrell/apidoc",
+    "description": "Generates API documentation from Postman collections",
+    "authors": [
+        {
+            "name": "Jake Worrell",
+            "email": "me@jakeworrell.co.uk"
+        }
+    ],
+    "require": {}
+}
