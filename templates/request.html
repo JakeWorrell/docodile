@@ -40,6 +40,7 @@
         <pre><code>{{response.request.method}} {{response.request.url}}{% if response.request.data %}?{{querify(response.request.data)}}{% endif %}</code>
         </pre>
         <h4> Response </h4>
+        <pre><code>{{response.responseCode.code}} {{response.responseCode.name}}</code></pre>
         <pre><code>{{prettify(response.text)}}</code>
         </pre>
     {% endfor %}
