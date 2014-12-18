@@ -5,10 +5,15 @@
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-<ul id="navigation">
-    {% for request in requests %}
-    <li><a href="{{ request.page_path }}">{{ request.name }}</a></li>
-    {% endfor %}
+<ul id="folders">
+	{% for folder in folders %}
+		<li>{{ folder.name }}</li>
+		<ul id="requests">
+	    {% for request in folder.requests %}
+	    	<li><a href="{{ request.page_path }}">{{ request.name }}</a></li>
+	    {% endfor %}
+	    </ul>
+	{% endfor %}
 </ul>
 </body>
 </html>

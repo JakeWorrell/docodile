@@ -36,17 +36,25 @@ $c = json_decode($json);
 
 mkdir(__DIR__ . '/output/requests',0777,true);
 
+
 foreach($c->requests as $rkey => $request) {
     $relpath = "requests/" . str_ireplace(array('/','\\','.',' '),'_', $request->name) . ".html";
     $c->requests[$rkey]->page_path = $relpath;
     file_put_contents(__DIR__ . "/output/" . $relpath , $twig->render('request.html', array("request" => $request)));
 }
 
+foreach ($c->folders as $folder) {
+    foreach ($folder->order as $id) {
+        foreach ($c->requests as $request) {
+            if($request->id == $id) {
+                $folder->requests[] = $request;
+            }
+        }
+    }    
+    $folders[] = $folder;
+}
 
-file_put_contents(__DIR__ . "/output/index.html", $twig->render('index.html', array("requests" => $c->requests)));
+file_put_contents(__DIR__ . "/output/index.html", $twig->render('index.html', array("folders" => $folders)));
 copy(__DIR__ . "/templates/styles.css",__DIR__ . "/output/styles.css");
-
-
-
 
 ?>

@@ -37,7 +37,7 @@
     {% for response in request.responses %}
         <h3> {{response.name}} </h3>
         <h4> Request </h4>
-        <pre><code>{{response.request.method}} {{response.request.url}}?{{querify(response.request.data)}}</code>
+        <pre><code>{{response.request.method}} {{response.request.url}}{% if response.request.data %}?{{querify(response.request.data)}}{% endif %}</code>
         </pre>
         <h4> Response </h4>
         <pre><code>{{response.text}}</code>
