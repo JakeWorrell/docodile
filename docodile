@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-$console = new Application("Docodile", "0.1");
+$console = new Application("Docodile", "0.1.1");
 
 $console->addCommands(array(
     new GenerateCommand(),
