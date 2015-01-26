@@ -1,52 +1,22 @@
 #!/usr/bin/env php
 <?php
 require_once (__DIR__ . "/vendor/autoload.php");
+require_once(__DIR__ . "/Command/GenerateCommand.php");
+require_once(__DIR__ . "/Command/LintCommand.php");
 
-$loader = new Twig_Loader_Filesystem(__DIR__ . '/templates/');
-$twig = new Twig_Environment($loader, array(
-    'cache' => __DIR__ .'/cache/',
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+
+$console = new Application("Docodile", "0.1.1");
+
+$console->addCommands(array(
+    new GenerateCommand(),
+    new LintCommand()
 ));
-$twig->clearCacheFiles();
-
-$f = new Twig_SimpleFunction("querify", function($data){
-    $string = array();
-    foreach ($data as $d) {
-        $string[] = urlencode($d->key) . "=" .  urlencode($d->value);
-    }
-    return implode("&", $string);
-});
-$twig->addFunction("querify", $f);
-
-/**
- * TODO Refactor
- * TODO if valid json - Format JSON (perhaps even with syntax highlighting if possible
- */
-srand(1);
-
-$env = array(
-    "{{client_id}}" => sha1(rand()),
-    "{{url}}" => "http://192.168.33.99",
-);
-
-$json = file_get_contents($argv[1]);
-foreach($env as $key => $val) {
-    $json = str_ireplace($key, $val, $json);
-}
-$c = json_decode($json);
-
-mkdir(__DIR__ . '/output/requests',0777,true);
-
-foreach($c->requests as $rkey => $request) {
-    $relpath = "requests/" . str_ireplace(array('/','\\','.',' '),'_', $request->name) . ".html";
-    $c->requests[$rkey]->page_path = $relpath;
-    file_put_contents(__DIR__ . "/output/" . $relpath , $twig->render('request.html', array("request" => $request)));
-}
-
-
-file_put_contents(__DIR__ . "/output/index.html", $twig->render('index.html', array("requests" => $c->requests)));
-copy(__DIR__ . "/templates/styles.css",__DIR__ . "/output/styles.css");
-
-
-
+//$console->setDefaultCommand("generate");
+$console->run();
 
 ?>
