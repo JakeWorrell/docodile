@@ -17,6 +17,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $folders = array();
         $rootDir = dirname(__DIR__);
         $loader = new Twig_Loader_Filesystem($rootDir . '/templates/');
         $twig = new Twig_Environment($loader, array(
