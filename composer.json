@@ -1,0 +1,14 @@
+{
+    "name": "jakeworrell/apidoc",
+    "description": "Generates API documentation from Postman collections",
+    "authors": [
+        {
+            "name": "Jake Worrell",
+            "email": "me@jakeworrell.co.uk"
+        }
+    ],
+    "require": {
+        "twig/twig": "1.16.*@dev",
+        "symfony/console": "2.6.1"
+    }
+}
