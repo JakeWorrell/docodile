@@ -19,7 +19,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->rootDir = dirname(__DIR__);
-        
+
         $folders = array();
         $fs = new Filesystem();
         $outputDir = $input->getArgument('output');
@@ -46,8 +46,9 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         $fs->mkdir($outputDir . '/requests');
 
         foreach($c->requests as $rkey => $request) {
-            $relpath = "/requests/" . str_ireplace(array('/','\\','.',' '),'_', $request->name) . ".html";
-            $c->requests[$rkey]->page_path = $relpath;
+            $pageFilename = str_ireplace(array('/','\\','.',' '),'_', $request->name) . ".html";
+            $relpath = "/requests/" .  $pageFilename;
+            $c->requests[$rkey]->page_path = 'requests/' . $pageFilename;
             if (!count($request->responses)) {
                 $output->writeln("Warning: {$request->name} has no response examples");
             }
