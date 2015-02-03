@@ -9,6 +9,6 @@ Usage
 
 Don't forget to run a ```composer install``` first. You may have to ```mkdir cache```
 
-```./docodile generate /path/to/postman/collection.json```
+```./docodile generate /path/to/postman/collection.json /my/output/directory```
 
-output will be in a directory called output. If you have already generated, it is recommended to ```rm -rf output``` before you regenerate
+if ```/my/output/directory``` already exists the process will exit as continuing will delete that directory completely. --force will force deletion
