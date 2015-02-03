@@ -6,10 +6,6 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class GenerateCommand extends \Symfony\Component\Console\Command\Command {
 
-    public function __construct(){
-        $this->rootDir = dirname(__DIR__);
-    }
-    
     protected function configure()
     {
         $this
@@ -22,6 +18,8 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->rootDir = dirname(__DIR__);
+        
         $folders = array();
         $fs = new Filesystem();
         $outputDir = $input->getArgument('output');
