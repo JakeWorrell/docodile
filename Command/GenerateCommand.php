@@ -5,6 +5,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 class GenerateCommand extends \Symfony\Component\Console\Command\Command {
     protected function configure()
@@ -12,43 +14,30 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         $this
             ->setName('generate')
             ->setDescription('Generates API documentation')
-            ->addArgument('input',null,'Path to a valid postman collection');
+            ->addArgument('input',null,'Path to a valid postman collection')
+            ->addArgument('output',null,'Path to output documentation to', 'docodile')
+            ->addOption('force','f',null,'force output directory deletion');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $folders = array();
         $rootDir = dirname(__DIR__);
-        $loader = new Twig_Loader_Filesystem($rootDir . '/templates/');
-        $twig = new Twig_Environment($loader, array(
-            'cache' => $rootDir .'/cache/',
-        ));
-        $twig->clearCacheFiles();
-
-        $f = new Twig_SimpleFunction("querify", function($data){
-            $string = array();
-            foreach ($data as $d) {
-                $string[] = urlencode($d->key) . "=" .  urlencode($d->value);
+        $fs = new Filesystem();
+        $outputDir = $input->getArgument('output');
+        if ($fs->exists($outputDir)) {
+            if (!$input->getOption('force')) {
+                $output->writeln("output directory '" . $outputDir . "' exists. Chickening out of deleting directory. --force to force");
+                return 1;
             }
-            return implode("&", $string);
-        });
-        $twig->addFunction("querify", $f);
 
-        $f = new Twig_SimpleFunction("prettify", function($data){
-            return json_encode(json_decode($data), JSON_PRETTY_PRINT);
-        });
-        $twig->addFunction("prettify", $f);
+            $fs->remove($outputDir);
+        }
 
-        /**
-         * TODO Refactor
-         * TODO if valid json - Format JSON (perhaps even with syntax highlighting if possible
-         */
-        srand(1);
+        $loader = new Twig_Loader_Filesystem($rootDir . '/templates/');
+        $twig = $this->getTwig($rootDir, $loader);
 
-        $env = array(
-            "{{client_id}}" => sha1(rand()),
-            "{{url}}" => "http://192.168.33.99",
-        );
+        $env = $this->getExampleParameters();
 
         $json = file_get_contents($input->getArgument('input'));
         foreach($env as $key => $val) {
@@ -56,11 +45,10 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         }
         $c = json_decode($json);
 
-        mkdir($rootDir . '/output/requests',0777,true);
-
+        $fs->mkdir($outputDir . '/requests');
 
         foreach($c->requests as $rkey => $request) {
-            $relpath = "requests/" . str_ireplace(array('/','\\','.',' '),'_', $request->name) . ".html";
+            $relpath = "/requests/" . str_ireplace(array('/','\\','.',' '),'_', $request->name) . ".html";
             $c->requests[$rkey]->page_path = $relpath;
             if (!count($request->responses)) {
                 $output->writeln("Warning: {$request->name} has no response examples");
@@ -71,7 +59,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
             if($request->method=="GET" && count($request->data)) {
                 $output->writeln("Warning: {$request->name} has form-data parameters defined but is a GET request");
             }
-            file_put_contents($rootDir . "/output/" . $relpath , $twig->render('request.html', array("request" => $request)));
+            file_put_contents($outputDir . $relpath , $twig->render('request.html', array("request" => $request)));
         }
 
         foreach ($c->folders as $folder) {
@@ -85,7 +73,44 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
             $folders[] = $folder;
         }
 
-        file_put_contents($rootDir . "/output/index.html", $twig->render('index.html', array("folders" => $folders)));
-        copy($rootDir . "/templates/styles.css",$rootDir . "/output/styles.css");
+        file_put_contents($outputDir . "/index.html", $twig->render('index.html', array("folders" => $folders)));
+        copy($rootDir . "/templates/styles.css", $outputDir . "/styles.css");
+    }
+
+    public function getExampleParameters(){
+        srand(1);
+        return array(
+            "{{client_id}}" => sha1(rand()),
+            "{{url}}" => "http://192.168.33.99",
+        );
+    }
+
+    /**
+     * @param $rootDir
+     * @param $loader
+     * @return Twig_Environment
+     */
+    protected function getTwig($rootDir, $loader)
+    {
+        $twig = new Twig_Environment($loader, array(
+            'cache' => $rootDir . '/cache/',
+        ));
+        $twig->clearCacheFiles();
+
+        $f = new Twig_SimpleFunction("querify", function ($data) {
+            $string = array();
+            foreach ($data as $d) {
+                $string[] = urlencode($d->key) . "=" . urlencode($d->value);
+            }
+            return implode("&", $string);
+        });
+        $twig->addFunction("querify", $f);
+
+        $f = new Twig_SimpleFunction("prettify", function ($data) {
+            return json_encode(json_decode($data), JSON_PRETTY_PRINT);
+        });
+
+        $twig->addFunction("prettify", $f);
+        return $twig;
     }
 }
