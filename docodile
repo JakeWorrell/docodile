@@ -7,21 +7,15 @@ if (file_exists(__DIR__.'/vendor/autoload.php')) {
 }
 
 require_once(__DIR__ . "/Command/GenerateCommand.php");
-require_once(__DIR__ . "/Command/LintCommand.php");
 
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 
 $console = new Application("Docodile", "0.2");
 
 $console->addCommands(array(
     new GenerateCommand(),
-    new LintCommand()
 ));
-//$console->setDefaultCommand("generate");
+$console->setDefaultCommand("generate");
 $console->run();
 
 ?>
