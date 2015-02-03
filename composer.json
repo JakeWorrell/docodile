@@ -1,5 +1,6 @@
 {
-    "name": "jakeworrell/apidoc",
+    "name": "jakeworrell/docodile",
+    "vestion": "0.2",
     "description": "Generates API documentation from Postman collections",
     "authors": [
         {
