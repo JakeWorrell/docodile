@@ -5,6 +5,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 class GenerateCommand extends \Symfony\Component\Console\Command\Command {
+
+    public function __construct(){
+        $this->rootDir = dirname(__DIR__);
+    }
+    
     protected function configure()
     {
         $this
@@ -18,7 +23,6 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $folders = array();
-        $rootDir = dirname(__DIR__);
         $fs = new Filesystem();
         $outputDir = $input->getArgument('output');
         if ($fs->exists($outputDir)) {
@@ -30,8 +34,8 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
             $fs->remove($outputDir);
         }
 
-        $loader = new Twig_Loader_Filesystem($rootDir . '/templates/');
-        $twig = $this->getTwig($rootDir, $loader);
+
+        $twig = $this->getTwig();
 
         $env = $this->getExampleParameters();
 
@@ -70,7 +74,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         }
 
         file_put_contents($outputDir . "/index.html", $twig->render('index.html', array("folders" => $folders)));
-        copy($rootDir . "/templates/styles.css", $outputDir . "/styles.css");
+        copy($this->rootDir . "/templates/styles.css", $outputDir . "/styles.css");
     }
 
     public function getExampleParameters(){
@@ -82,14 +86,14 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
     }
 
     /**
-     * @param $rootDir
-     * @param $loader
      * @return Twig_Environment
      */
-    protected function getTwig($rootDir, $loader)
+    protected function getTwig()
     {
+        $loader = new Twig_Loader_Filesystem($this->rootDir . '/templates/');
+
         $twig = new Twig_Environment($loader, array(
-            'cache' => $rootDir . '/cache/',
+            'cache' => false
         ));
         $twig->clearCacheFiles();
 
