@@ -394,3 +394,8 @@ pre code, pre tt {
         page-break-inside: avoid;
     }
 }
+
+footer {
+    margin-top: 57px;
+    text-align: center;
+}

@@ -1,5 +1,6 @@
 {
-    "name": "jakeworrell/apidoc",
+    "name": "jakeworrell/docodile",
+    "vestion": "0.2",
     "description": "Generates API documentation from Postman collections",
     "authors": [
         {
@@ -9,6 +10,7 @@
     ],
     "require": {
         "twig/twig": "1.16.*@dev",
-        "symfony/console": "2.6.1"
+        "symfony/console": "2.6.1",
+        "symfony/filesystem": "2.6.4"
     }
 }
