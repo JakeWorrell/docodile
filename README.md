@@ -7,7 +7,7 @@ Code is terrible at the moment
 Usage
 -----
 
-Don't forget to run a ```composer install``` first. You may have to ```mkdir cache```
+Don't forget to run a ```composer install``` first
 
 ```./docodile generate /path/to/postman/collection.json /my/output/directory```
 
