@@ -46,7 +46,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         $fs->mkdir($outputDir . '/requests');
 
         foreach($c->requests as $rkey => $request) {
-            $pageFilename = str_ireplace(array('/','\\','.',' '),'_', $request->name) . ".html";
+            $pageFilename = str_ireplace(array('/','\\','.',' ','?'),'_', $request->name) . ".html";
             $relpath = "/requests/" .  $pageFilename;
             $c->requests[$rkey]->page_path = 'requests/' . $pageFilename;
             if (!count($request->responses)) {
