@@ -14,6 +14,7 @@
 <p> {{request.description}} </p>
 {% endif %}
 
+{% if request.method != 'GET' %}
 {% if request.data | length >0 %}
 <h3> Parameters </h3>
 <table>
@@ -30,6 +31,7 @@
     </tr>
     {% endfor %}
 </table>
+{% endif %}
 {% endif %}
 
 {% if request.responses | length >0 %}
