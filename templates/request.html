@@ -16,7 +16,7 @@
 
 {% if request.method != 'GET' %}
 {% if request.data | length >0 %}
-<h3> Parameters </h3>
+<h3> Form-data Parameters </h3>
 <table>
     <thead>
     <tr>
@@ -31,6 +31,10 @@
     </tr>
     {% endfor %}
 </table>
+{% endif %}
+{% if request.rawModeData | length >0 %}
+<h3> JSON </h3>
+<pre><code>{{prettify(request.rawModeData)}}</code></pre>
 {% endif %}
 {% endif %}
 
