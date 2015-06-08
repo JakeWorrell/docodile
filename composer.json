@@ -10,8 +10,8 @@
     ],
     "require": {
         "twig/twig": "1.16.*@dev",
-        "symfony/console": "2.5.*",
-        "symfony/filesystem": "2.5.*"
+        "symfony/console": "2.7.*",
+        "symfony/filesystem": "2.7.*"
     },
     "bin": [
         "docodile"
