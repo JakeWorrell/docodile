@@ -20,6 +20,10 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
     {
         $this->rootDir = dirname(__DIR__);
 
+        if (!file_exists($input->getArgument('input'))) {
+            throw new ErrorException('The Postman collection specified cannot be found');
+        }
+
         $folders = array();
         $fs = new Filesystem();
         $outputDir = $input->getArgument('output');
@@ -34,7 +38,6 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
 
 
         $twig = $this->getTwig();
-
         $env = $this->getExampleParameters();
 
         $json = file_get_contents($input->getArgument('input'));
@@ -49,16 +52,15 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
             $pageFilename = str_ireplace(array('/','\\','.',' ','?'),'_', $request->name) . ".html";
             $relpath = "/requests/" .  $pageFilename;
             $c->requests[$rkey]->page_path = 'requests/' . $pageFilename;
-            if (!count($request->responses)) {
+            if (!property_exists($request, 'responses') ||  !count($request->responses)) {
                 $output->writeln("Warning: {$request->name} has no response examples");
             }
-            if (!count($request->responses)) {
-                $output->writeln("Warning: {$request->name} has no description");
-            }
+
             if($request->method=="GET" && count($request->data)) {
                 $output->writeln("Warning: {$request->name} has form-data parameters defined but is a GET request");
             }
-            file_put_contents($outputDir . $relpath , $twig->render('request.html', array("request" => $request)));
+
+            file_put_contents($outputDir . $relpath , $twig->render('request.html', [ "request" => $request ]));
         }
 
         foreach ($c->folders as $folder) {

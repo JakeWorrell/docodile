@@ -47,9 +47,11 @@
 <code>{{response.request.method}} {{response.request.url}}
 {% if response.request.method == 'POST' %}
 
-{% for parameter in response.request.data %}
-{{parameter.key}} = {{parameter.value}}
-{% endfor %}
+{% if response.request.data is iterable %}
+    {% for parameter in response.request.data %}
+        {{parameter.key}} = {{parameter.value}}
+    {% endfor %}
+{% else %}{{prettify(response.request.data)}}{% endif %}
 {% endif %}</code></pre>
         <h4> Response </h4>
         <pre><code>{{response.responseCode.code}} {{response.responseCode.name}}</code></pre>
