@@ -7,15 +7,15 @@
 <body><h1> {{request.name}} </h1>
 
 <h2>Request Information</h2>
-<pre><code>{{request.method}} {{request.url}}</code></pre>
+<pre><code>{{request.request.method}} {{request.request.url}}</code></pre>
 
-{% if request.description %}
+{% if request.request.description %}
 <h3> Description </h3>
-<p> {{request.description}} </p>
+<p> {{request.request.description}} </p>
 {% endif %}
 
-{% if request.method != 'GET' %}
-{% if request.data | length >0 %}
+{% if request.request.method != 'GET' %}
+{% if request.request.body.mode == 'formdata' %}
 <h3> Form-data Parameters </h3>
 <table>
     <thead>
@@ -24,7 +24,7 @@
         <th>Example Value</th>
     </tr>
     </thead>
-    {% for parameter in request.data %}
+    {% for parameter in request.request.body.formdata %}
     <tr>
         <td>{{parameter.key}}</td>
         <td>{{parameter.value}}</td>
@@ -32,30 +32,19 @@
     {% endfor %}
 </table>
 {% endif %}
-{% if request.rawModeData | length >0 %}
+{% if request.request.body.mode == 'raw' %}
 <h3> JSON </h3>
-<pre><code>{{prettify(request.rawModeData)}}</code></pre>
+<pre><code>{{prettify(request.request.body.raw)}}</code></pre>
 {% endif %}
 {% endif %}
 
-{% if request.responses | length >0 %}
+{% if request.response | length >0 %}
 <h2>Example responses</h2>
-    {% for response in request.responses %}
+    {% for response in request.response %}
         <h3> {{response.name}} </h3>
-        <h4> Request </h4>
-        <pre>
-<code>{{response.request.method}} {{response.request.url}}
-{% if response.request.method == 'POST' %}
-
-{% if response.request.data is iterable %}
-    {% for parameter in response.request.data %}
-        {{parameter.key}} = {{parameter.value}}
-    {% endfor %}
-{% else %}{{prettify(response.request.data)}}{% endif %}
-{% endif %}</code></pre>
         <h4> Response </h4>
-        <pre><code>{{response.responseCode.code}} {{response.responseCode.name}}</code></pre>
-        <pre><code>{{prettify(response.text)}}</code></pre>
+        <pre><code>{{response.code}} {{response.status}}</code></pre>
+        <pre><code>{{prettify(response.body)}}</code></pre>
     {% endfor %}
 {% endif %}
 

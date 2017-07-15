@@ -12,7 +12,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
             ->setName('generate')
             ->setDescription('Generates API documentation')
             ->addArgument('input',null,'Path to a valid postman collection')
-            ->addArgument('output',null,'Path to output documentation to', 'docodile')
+            ->addArgument('output',null,'Path to output documentation to', getcwd() .'/docodile')
             ->addOption('force','f',null,'force output directory deletion');
     }
 
@@ -32,8 +32,9 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
                 $output->writeln("output directory '" . $outputDir . "' exists. Chickening out of deleting directory. --force to force");
                 return 1;
             }
-
             $fs->remove($outputDir);
+            $fs->mkdir($outputDir);
+            $fs->mkdir($outputDir . '/requests');
         }
 
 
@@ -41,37 +42,46 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         $env = $this->getExampleParameters();
 
         $json = file_get_contents($input->getArgument('input'));
+
         foreach($env as $key => $val) {
             $json = str_ireplace($key, $val, $json);
         }
-        $c = json_decode($json);
 
-        $fs->mkdir($outputDir . '/requests');
+        $collection = json_decode($json);
+        $processedCollection = new stdClass();
 
-        foreach($c->requests as $rkey => $request) {
-            $pageFilename = str_ireplace(array('/','\\','.',' ','?'),'_', $request->name) . ".html";
-            $relpath = "/requests/" .  $pageFilename;
-            $c->requests[$rkey]->page_path = 'requests/' . $pageFilename;
-            if (!property_exists($request, 'responses') ||  !count($request->responses)) {
-                $output->writeln("Warning: {$request->name} has no response examples");
-            }
+        preg_match('/(?<=v)\d+(\.\d+)?(\.\d+)?/', $collection->info->schema, $collectionVersion);
+        $collectionVersion = $collectionVersion[0];
 
-            if($request->method=="GET" && count($request->data)) {
-                $output->writeln("Warning: {$request->name} has form-data parameters defined but is a GET request");
-            }
-
-            file_put_contents($outputDir . $relpath , $twig->render('request.html', [ "request" => $request ]));
+        //version_compare()
+        if (version_compare($collectionVersion,'2.0.0') < 0) {
+            throw new ErrorException('No longer supporting postman collections with versions < 2.0.0');
         }
 
-        foreach ($c->folders as $folder) {
-            foreach ($folder->order as $id) {
-                foreach ($c->requests as $request) {
-                    if($request->id == $id) {
-                        $folder->requests[] = $request;
+        foreach ($collection->item as $item) {
+            if (isset($item->item)) { // this is actually a folder
+                $folders[$item->name]['name'] = $item->name;
+
+                foreach ($item->item as $request) {
+                    if (is_object($request->request->url)){
+                        $request->request->url = $request->request->url->raw;
                     }
+                    $pageFilename = str_ireplace(array('/','\\','.',' ','?'),'_', $request->name) . ".html";
+                    $relpath = "/requests/" .  $pageFilename;
+                    $request->page_path = 'requests/' . $pageFilename;
+                    if (!property_exists($request, 'response') ||  !count($request->response)) {
+                        $output->writeln("Warning: {$request->name} has no response examples");
+                    }
+
+                    if($request->request->method=="GET" && isset($request->request->body->formdata)) {
+                        $output->writeln("Warning: {$request->name} has form-data parameters defined but is a GET request");
+                    }
+
+                    file_put_contents($outputDir . $relpath , $twig->render('request.html', [ "request" => $request ]));
+                    $folders[$item->name]['requests'][] = $request;
+
                 }
             }
-            $folders[] = $folder;
         }
 
         file_put_contents($outputDir . "/index.html", $twig->render('index.html', array("folders" => $folders)));
