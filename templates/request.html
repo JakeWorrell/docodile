@@ -4,12 +4,14 @@
     <title>{{request.name}} - {{meta.projectName}}</title>
     <link rel="stylesheet" type="text/css" href="../bootstrap/css/bootstrap-darkly.css">
     <link rel="stylesheet" type="text/css" href="../styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
 </head>
 <body>
-{% include 'header.html' %}
+{{ include('header.html',{urlsuffix:'../'}) }}
 <div class="container-fluid">
     <div class="row">
-        {{ include('sidebar.html', {current_folder: request.folder, current_request: request.name} ) }}
+        {{ include('sidebar.html', {current_folder: request.folder, current_request: request.name, urlsuffix:'../'} ) }}
         <div class="col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3 main">
             <h1> {{request.name}} </h1>
 
@@ -31,7 +33,7 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">Form-data Parameters </div>
                 <div class="panel-body">
-                    <table>
+                    <table class="table table-hover ">
                         <thead>
                         <tr>
                             <th>Key</th>
@@ -80,7 +82,6 @@
 
 </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="../bootstrap/js/bootstrap.min.js"></script>
 </body>
 </html>
