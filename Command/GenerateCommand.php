@@ -33,9 +33,9 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
                 return 1;
             }
             $fs->remove($outputDir);
-            $fs->mkdir($outputDir);
-            $fs->mkdir($outputDir . '/requests');
         }
+        $fs->mkdir($outputDir);
+        $fs->mkdir($outputDir . '/requests');
 
 
         $twig = $this->getTwig();
@@ -65,6 +65,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
                 $folders[$item->name]['name'] = $item->name;
 
                 foreach ($item->item as $request) {
+                    $request->folder = $item->name;
                     if (is_object($request->request->url)){
                         $request->request->url = $request->request->url->raw;
                     }
@@ -78,6 +79,21 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
                         $output->writeln("Warning: {$request->name} has form-data parameters defined but is a GET request");
                     }
 
+                    foreach ($request->response as $key => $response) {
+                        if ($response->code >=100 && $response->code <200) {
+                            $response->class = 'info';
+                        } elseif ($response->code >=200 && $response->code <300) {
+                            $response->class = 'success';
+                        } elseif ($response->code >=300 && $response->code <400) {
+                            $response->class = 'success';
+                        } elseif ($response->code >=400 && $response->code <500) {
+                            $response->class = 'warning';
+                        } elseif ($response->code >=500) {
+                            $response->class = 'danger';
+                        } else {
+                            $response->class = 'primary';
+                        }
+                    }
                     $folders[$item->name]['requests'][] = $request;
 
                 }
