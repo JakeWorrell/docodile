@@ -102,3 +102,8 @@ body {
   display: inline-block;
   border-radius: 50%;
 }
+
+pre {
+  padding: 0px ;
+  border: none;
+}

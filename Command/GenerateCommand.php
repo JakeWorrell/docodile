@@ -108,6 +108,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
 
         file_put_contents($outputDir . "/index.html", $twig->render('index.html', array("folders" => $folders, "meta" => $meta)));
         $fs->symlink($this->rootDir . '/templates/bootstrap', $outputDir .'/bootstrap');
+        $fs->symlink($this->rootDir . '/templates/highlight', $outputDir .'/highlight');
         $fs->copy($this->rootDir . "/templates/styles.css", $outputDir . "/styles.css");
     }
 
