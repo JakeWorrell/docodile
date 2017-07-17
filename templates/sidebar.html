@@ -1,0 +1,16 @@
+<div class="col-sm-4 col-md-3 sidebar">
+	<div class="panel-group" role="tablist">
+		<div class="panel panel-default">
+		{% for folder in folders %}
+			<div class="panel-heading" role="tab" id="collapseListGroupHeading{{loop.index}}">
+				<h4 class="panel-title"> <a href="#collapseListGroup{{loop.index}}" class="collapsed" role="button" data-toggle="collapse" aria-expanded="" aria-controls="collapseListGroup{{loop.index}}">{{ folder.name }}</a> </h4>
+			</div>
+			<div class="panel-collapse collapse " role="tabpanel" id="collapseListGroup{{loop.index}}" aria-labelledby="collapseListGroupHeading{{loop.index}}" aria-expanded="" style="height: 0px;"> 
+				<ul class="list-group">
+					{% for request in folder.requests %}<li class="list-group-item {{ request.name == current_request? 'active':''}}"><a href="{{urlsuffix}}{{ request.page_path }}">{{ request.name }}</a></li>{% endfor %}
+				</ul> 
+			</div>
+		{% endfor %}
+		</div> 
+	</div>
+</div>
