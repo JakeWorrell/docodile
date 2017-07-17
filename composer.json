@@ -15,5 +15,8 @@
     },
     "bin": [
         "docodile"
-    ]
+    ],
+    "autoload": {
+        "psr-4": {"Docodile\\": ""}
+    }
 }

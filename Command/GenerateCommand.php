@@ -1,13 +1,19 @@
 <?php
-
+namespace Docodile\Command;
+use Docodile\Postman\Collection;
+use ErrorException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 class GenerateCommand extends \Symfony\Component\Console\Command\Command {
 
+    protected $rootDir;
+
     protected function configure()
     {
+        $this->rootDir = dirname(__DIR__);
+
         $this
             ->setName('generate')
             ->setDescription('Generates API documentation')
@@ -18,8 +24,6 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->rootDir = dirname(__DIR__);
-
         if (!file_exists($input->getArgument('input'))) {
             throw new ErrorException('The Postman collection specified cannot be found');
         }
@@ -33,32 +37,20 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
                 return 1;
             }
             $fs->remove($outputDir);
-            $fs->mkdir($outputDir);
-            $fs->mkdir($outputDir . '/requests');
-        }
 
+        }
+        $fs->mkdir($outputDir);
+        $fs->mkdir($outputDir . '/requests');
 
         $twig = $this->getTwig();
-        $env = $this->getExampleParameters();
 
-        $json = file_get_contents($input->getArgument('input'));
+        $collection = Collection::fromFile($input->getArgument('input'), $this->getExampleParameters());
 
-        foreach($env as $key => $val) {
-            $json = str_ireplace($key, $val, $json);
-        }
-
-        $collection = json_decode($json);
-        $processedCollection = new stdClass();
-
-        preg_match('/(?<=v)\d+(\.\d+)?(\.\d+)?/', $collection->info->schema, $collectionVersion);
-        $collectionVersion = $collectionVersion[0];
-
-        //version_compare()
-        if (version_compare($collectionVersion,'2.0.0') < 0) {
+        if (version_compare($collection->getVersion(),'2.0.0') < 0) {
             throw new ErrorException('No longer supporting postman collections with versions < 2.0.0');
         }
 
-        foreach ($collection->item as $item) {
+        foreach ($collection->getItems() as $item) {
             if (isset($item->item)) { // this is actually a folder
                 $folders[$item->name]['name'] = $item->name;
 
@@ -97,18 +89,18 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
     }
 
     /**
-     * @return Twig_Environment
+     * @return \Twig_Environment
      */
     protected function getTwig()
     {
-        $loader = new Twig_Loader_Filesystem($this->rootDir . '/templates/');
+        $loader = new \Twig_Loader_Filesystem($this->rootDir . '/templates/');
 
-        $twig = new Twig_Environment($loader, array(
+        $twig = new \Twig_Environment($loader, array(
             'cache' => false
         ));
         $twig->clearCacheFiles();
 
-        $f = new Twig_SimpleFunction("querify", function ($data) {
+        $f = new \Twig_SimpleFunction("querify", function ($data) {
             $string = array();
             foreach ($data as $d) {
                 $string[] = urlencode($d->key) . "=" . urlencode($d->value);
@@ -117,7 +109,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         });
         $twig->addFunction("querify", $f);
 
-        $f = new Twig_SimpleFunction("prettify", function ($data) {
+        $f = new \Twig_SimpleFunction("prettify", function ($data) {
             return json_encode(json_decode($data), JSON_PRETTY_PRINT);
         });
 
