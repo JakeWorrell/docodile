@@ -29,22 +29,11 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         }
 
         $folders = array();
-        $fs = new Filesystem();
         $outputDir = $input->getArgument('output');
-        if ($fs->exists($outputDir)) {
-            if (!$input->getOption('force')) {
-                $output->writeln("output directory '" . $outputDir . "' exists. Chickening out of deleting directory. --force to force");
-                return 1;
-            }
-            $fs->remove($outputDir);
-
-        }
-        $fs->mkdir($outputDir);
-        $fs->mkdir($outputDir . '/requests');
-
 
         $twig = $this->getTwig();
 
+        $this->prepareOutputDirectory($outputDir, $input->getOption('force'));
         $collection = Collection::fromFile($input->getArgument('input'), $this->getExampleParameters());
 
         if (version_compare($collection->getVersion(),'2.0.0') < 0) {
@@ -90,7 +79,6 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
                         }
                     }
                     $folders[$item->name]['requests'][] = $request;
-
                 }
             }
         }
@@ -102,9 +90,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         }
 
         file_put_contents($outputDir . "/index.html", $twig->render('index.html', array("folders" => $folders, "meta" => $meta)));
-        $fs->symlink($this->rootDir . '/templates/bootstrap', $outputDir .'/bootstrap');
-        $fs->symlink($this->rootDir . '/templates/highlight', $outputDir .'/highlight');
-        $fs->copy($this->rootDir . "/templates/styles.css", $outputDir . "/styles.css");
+
     }
 
     public function getExampleParameters(){
@@ -142,5 +128,26 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
 
         $twig->addFunction("prettify", $f);
         return $twig;
+    }
+
+    /**
+     * @param $outputDir
+     * @param $force
+     * @throws ErrorException
+     */
+    protected function prepareOutputDirectory($outputDir, $force)
+    {
+        $fs = new Filesystem();
+        if ($fs->exists($outputDir)) {
+            if (!$force) {
+                throw new ErrorException("output directory '" . $outputDir . "' exists. Chickening out of deleting directory. --force to force");
+            }
+            $fs->remove($outputDir);
+        }
+        $fs->mkdir($outputDir);
+        $fs->mkdir($outputDir . '/requests');
+        $fs->symlink($this->rootDir . '/templates/bootstrap', $outputDir . '/bootstrap');
+        $fs->symlink($this->rootDir . '/templates/highlight', $outputDir . '/highlight');
+        $fs->copy($this->rootDir . "/templates/styles.css", $outputDir . "/styles.css");
     }
 }
