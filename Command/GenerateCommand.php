@@ -146,8 +146,8 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         }
         $fs->mkdir($outputDir);
         $fs->mkdir($outputDir . '/requests');
-        $fs->symlink($this->rootDir . '/templates/bootstrap', $outputDir . '/bootstrap');
-        $fs->symlink($this->rootDir . '/templates/highlight', $outputDir . '/highlight');
+        $fs->mirror($this->rootDir . '/templates/bootstrap', $outputDir . '/bootstrap');
+        $fs->mirror($this->rootDir . '/templates/highlight', $outputDir . '/highlight');
         $fs->copy($this->rootDir . "/templates/styles.css", $outputDir . "/styles.css");
     }
 }
