@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "twig/twig": "~1.16|^2.4",
+        "twig/twig": "*",
         "symfony/console": "*",
         "symfony/filesystem": "*"
     },
