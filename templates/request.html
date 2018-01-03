@@ -17,7 +17,7 @@
             <h1> {{request.name}} </h1>
 
             <div class="panel panel-primary">
-            <div class="panel-heading">Request Information</div>  
+                <div class="panel-heading">Request Information</div>
                 <div class="panel-body">
                     <table class="table table-hover ">
                       <tbody>
@@ -59,6 +59,23 @@
                 </div>
             </div>
             {% endif %}
+            {% endif %}
+
+            {% if request.request.header is not empty  %}
+            <div class="panel panel-primary">
+                <div class="panel-heading">Header</div>
+                <div class="panel-body">
+                    <table class="table table-hover ">
+                        <tbody>
+                        {% for header in request.request.header %}
+                        {% if header.disabled != true %}
+                        <tr><th>{{header.key}}</th><td>{{header.value}}</td></tr>
+                        {% endif %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             {% endif %}
 
             {% if request.response | length >0 %}
