@@ -53,7 +53,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
                     if (is_object($request->request->url)){
                         $request->request->url = $request->request->url->raw;
                     }
-                    $pageFilename = str_ireplace(array('/','\\','.',' ','?'),'_', $request->name) . ".html";
+                    $pageFilename = strtolower($request->request->method) . '_' . str_ireplace(array('/','\\','.',' ','?'),'_', $request->name) . ".html";
                     $request->page_path = 'requests/' . $pageFilename;
                     if (!property_exists($request, 'response') ||  !count($request->response)) {
                         $output->writeln("Warning: {$request->name} has no response examples");
