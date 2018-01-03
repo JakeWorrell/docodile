@@ -2,12 +2,29 @@
 	<div class="panel-group" role="tablist">
 		<div class="panel panel-default">
 		{% for folder in folders %}
+			{% set collapsed = true %}
+
+			{% for request in folder.requests %}
+				{% set current = request.request.method ~ '_' ~ request.name %}
+				{% if current == current_request %}
+					{% set collapsed = false %}
+				{% endif %}
+			{% endfor %}
+
+
 			<div class="panel-heading" role="tab" id="collapseListGroupHeading{{loop.index}}">
-				<h4 class="panel-title"> <a href="#collapseListGroup{{loop.index}}" class="collapsed" role="button" data-toggle="collapse" aria-expanded="" aria-controls="collapseListGroup{{loop.index}}">{{ folder.name }}</a> </h4>
+				<h4 class="panel-title"> <a href="#collapseListGroup{{loop.index}}" class="{{ collapsed ? 'collapsed' : ''}}" role="button" data-toggle="collapse" aria-expanded="{{ collapsed ? 'false' : 'true' }}" aria-controls="collapseListGroup{{loop.index}}">{{ folder.name }}</a> </h4>
 			</div>
-			<div class="panel-collapse collapse " role="tabpanel" id="collapseListGroup{{loop.index}}" aria-labelledby="collapseListGroupHeading{{loop.index}}" aria-expanded="" style="height: 0px;"> 
+			<div class="panel-collapse collapse {{ collapsed ? '' : 'in' }}" role="tabpanel" id="collapseListGroup{{loop.index}}" aria-labelledby="collapseListGroupHeading{{loop.index}}" aria-expanded="{{ collapsed ? 'false' : 'true' }}" style="{{ collapsed ? 'height: 0px;' : '' }}">
 				<ul class="list-group">
-					{% for request in folder.requests %}<li class="list-group-item {{ request.name == current_request? 'active':''}}"><a href="{{urlsuffix}}{{ request.page_path }}">{{ request.name }}</a></li>{% endfor %}
+					{{folderClass}}
+
+					{% for request in folder.requests %}
+					{% set current = request.request.method ~ '_' ~ request.name %}
+					<li style="word-wrap: break-word;" class="list-group-item {{ current == current_request ? 'active' : ''}}">
+						<a href="{{urlsuffix}}{{ request.page_path }}">{{ request.request.method }} - {{ request.name }}</a>
+					</li>
+					{% endfor %}
 				</ul> 
 			</div>
 		{% endfor %}

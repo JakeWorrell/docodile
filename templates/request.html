@@ -12,7 +12,8 @@
 {{ include('header.html',{urlsuffix:'../'}) }}
 <div class="container-fluid">
     <div class="row">
-        {{ include('sidebar.html', {current_folder: request.folder, current_request: request.name, urlsuffix:'../'} ) }}
+        {% set current_request = request.request.method ~ '_' ~ request.name %}
+        {{ include('sidebar.html', {current_folder: request.folder, current_request: current_request, urlsuffix:'../'} ) }}
         <div class="col-sm-8 col-sm-offset-4 col-md-9 col-md-offset-3 main">
             <h1> {{request.name}} </h1>
 
