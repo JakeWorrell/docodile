@@ -3,6 +3,7 @@ namespace Docodile\Command;
 use Docodile\Postman\Collection;
 use ErrorException;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -19,7 +20,9 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
             ->setDescription('Generates API documentation')
             ->addArgument('input',null,'Path to a valid postman collection')
             ->addArgument('output',null,'Path to output documentation to', getcwd() .'/output')
-            ->addOption('force','f',null,'force output directory deletion');
+            ->addOption('force','f',null,'force output directory deletion')
+            ->addOption('theme','b', InputArgument::OPTIONAL,'specify a bootswatch theme', 'darkly')
+            ->addOption('highlight', 'j', InputArgument::OPTIONAL,'specify a highlightjs theme', 'darcula');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -28,12 +31,24 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
             throw new ErrorException('The Postman collection specified cannot be found');
         }
 
-        $folders = array();
-        $outputDir = $input->getArgument('output');
+        $folders        = array();
+        $outputDir      = $input->getArgument('output');
+        $theme          = $input->getOption('theme');
+        $highlightTheme = $input->getOption('highlight');
+        
+        $fs = new Filesystem();
+
+        if (!$fs->exists($this->rootDir . "/vendor/thomaspark/bootswatch/" . $theme . "/bootstrap.css")) {
+            throw new ErrorException("The bootstwatch theme " . $theme . " doesn't exist");
+        }
+
+        if (!$fs->exists($this->rootDir . "/vendor/components/highlightjs/styles/" . $highlightTheme . ".css")) {
+            throw new ErrorException("The higlightjs theme " . $highlightTheme . " doesn't exist");
+        }
 
         $twig = $this->getTwig();
 
-        $this->prepareOutputDirectory($outputDir, $input->getOption('force'));
+        $this->prepareOutputDirectory($outputDir, $theme, $input->getOption('force'));
         $collection = Collection::fromFile($input->getArgument('input'), $this->getExampleParameters());
 
         if (version_compare($collection->getVersion(),'2.0.0') < 0) {
@@ -41,7 +56,8 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         }
 
         $meta = [
-            'projectName' => $collection->data()->info->name
+            'projectName' => $collection->data()->info->name,
+            'highlightTheme' => $highlightTheme
         ];
 
         foreach ($collection->getItems() as $item) {
@@ -135,9 +151,10 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
      * @param $force
      * @throws ErrorException
      */
-    protected function prepareOutputDirectory($outputDir, $force)
+    protected function prepareOutputDirectory($outputDir, $theme = 'darkly', $force)
     {
         $fs = new Filesystem();
+
         if ($fs->exists($outputDir)) {
             if (!$force) {
                 throw new ErrorException("output directory '" . $outputDir . "' exists. Chickening out of deleting directory. --force to force");
@@ -148,7 +165,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         $fs->mkdir($outputDir . '/requests');
         $fs->mirror($this->rootDir . '/vendor/twbs/bootstrap/dist', $outputDir . '/bootstrap');
         $fs->mirror($this->rootDir . '/vendor/components/highlightjs', $outputDir . '/highlight');
-        $fs->copy($this->rootDir . "/vendor/thomaspark/bootswatch/darkly/bootstrap.css", $outputDir . "/bootstrap-theme.css");
+        $fs->copy($this->rootDir . "/vendor/thomaspark/bootswatch/" . $theme . "/bootstrap.css", $outputDir . "/bootstrap-theme.css");
         $fs->copy($this->rootDir . "/templates/styles.css", $outputDir . "/styles.css");
     }
 }
