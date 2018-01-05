@@ -18,7 +18,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
             ->setName('generate')
             ->setDescription('Generates API documentation')
             ->addArgument('input',null,'Path to a valid postman collection')
-            ->addArgument('output',null,'Path to output documentation to', getcwd() .'/docodile')
+            ->addArgument('output',null,'Path to output documentation to', getcwd() .'/output')
             ->addOption('force','f',null,'force output directory deletion');
     }
 
@@ -146,8 +146,9 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         }
         $fs->mkdir($outputDir);
         $fs->mkdir($outputDir . '/requests');
-        $fs->mirror($this->rootDir . '/templates/bootstrap', $outputDir . '/bootstrap');
-        $fs->mirror($this->rootDir . '/templates/highlight', $outputDir . '/highlight');
+        $fs->mirror($this->rootDir . '/vendor/twbs/bootstrap/dist', $outputDir . '/bootstrap');
+        $fs->mirror($this->rootDir . '/vendor/components/highlightjs', $outputDir . '/highlight');
+        $fs->copy($this->rootDir . "/vendor/thomaspark/bootswatch/darkly/bootstrap.css", $outputDir . "/bootstrap-theme.css");
         $fs->copy($this->rootDir . "/templates/styles.css", $outputDir . "/styles.css");
     }
 }

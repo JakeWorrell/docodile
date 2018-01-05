@@ -11,7 +11,10 @@
     "require": {
         "twig/twig": "*",
         "symfony/console": "*",
-        "symfony/filesystem": "*"
+        "symfony/filesystem": "*",
+        "twbs/bootstrap": "^3.3",
+        "thomaspark/bootswatch": "^3.3",
+        "components/highlightjs": "^9.12"
     },
     "bin": [
         "docodile"
