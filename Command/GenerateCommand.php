@@ -10,10 +10,16 @@ use Symfony\Component\Filesystem\Filesystem;
 class GenerateCommand extends \Symfony\Component\Console\Command\Command {
 
     protected $rootDir;
+    protected $templatesDir;
 
     protected function configure()
     {
-        $this->rootDir = dirname(__DIR__);
+        if (file_exists(__DIR__ . '/../../../autoload.php')){
+            $this->rootDir = realpath(__DIR__ . '/../../../../');
+        } else {
+            $this->rootDir = dirname(__DIR__);
+        }
+        $this->templatesDir = dirname(__DIR__) . '/templates';
 
         $this
             ->setName('generate')
@@ -38,12 +44,14 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         
         $fs = new Filesystem();
 
-        if (!$fs->exists($this->rootDir . "/vendor/thomaspark/bootswatch/" . $theme . "/bootstrap.css")) {
-            throw new ErrorException("The bootstwatch theme " . $theme . " doesn't exist");
+        $themePath = $this->rootDir . "/vendor/thomaspark/bootswatch/" . $theme . "/bootstrap.css";
+        if (!$fs->exists($themePath)) {
+            throw new ErrorException("The bootstwatch theme " . $theme . " doesn't exist. Looked for " . $themePath);
         }
 
-        if (!$fs->exists($this->rootDir . "/vendor/components/highlightjs/styles/" . $highlightTheme . ".css")) {
-            throw new ErrorException("The higlightjs theme " . $highlightTheme . " doesn't exist");
+        $themePath = $this->rootDir . "/vendor/components/highlightjs/styles/" . $highlightTheme . ".css";
+        if (!$fs->exists($themePath)) {
+            throw new ErrorException("The higlightjs theme " . $highlightTheme . " doesn't exist. Looked for " . $themePath);
         }
 
         $twig = $this->getTwig();
@@ -122,12 +130,11 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
      */
     protected function getTwig()
     {
-        $loader = new \Twig_Loader_Filesystem($this->rootDir . '/templates/');
+        $loader = new \Twig_Loader_Filesystem($this->templatesDir);
 
         $twig = new \Twig_Environment($loader, array(
             'cache' => false
-        ));
-        $twig->clearCacheFiles();
+        ));;
 
         $f = new \Twig_SimpleFunction("querify", function ($data) {
             $string = array();
@@ -136,13 +143,13 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
             }
             return implode("&", $string);
         });
-        $twig->addFunction("querify", $f);
+        $twig->addFunction($f);
 
         $f = new \Twig_SimpleFunction("prettify", function ($data) {
             return json_encode(json_decode($data), JSON_PRETTY_PRINT);
         });
 
-        $twig->addFunction("prettify", $f);
+        $twig->addFunction($f);
         return $twig;
     }
 
@@ -166,6 +173,6 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         $fs->mirror($this->rootDir . '/vendor/twbs/bootstrap/dist', $outputDir . '/bootstrap');
         $fs->mirror($this->rootDir . '/vendor/components/highlightjs', $outputDir . '/highlight');
         $fs->copy($this->rootDir . "/vendor/thomaspark/bootswatch/" . $theme . "/bootstrap.css", $outputDir . "/bootstrap-theme.css");
-        $fs->copy($this->rootDir . "/templates/styles.css", $outputDir . "/styles.css");
+        $fs->copy($this->templatesDir . "/styles.css", $outputDir . "/styles.css");
     }
 }
