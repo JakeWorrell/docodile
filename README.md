@@ -13,6 +13,8 @@ Don't forget to run a ```composer install``` first
 
 if ```/my/output/directory``` already exists the process will exit as continuing will delete that directory completely. --force will force deletion
 
+--url: add option for url. e.g. "http://helloworld.com"
+
 Theming
 -------
 
