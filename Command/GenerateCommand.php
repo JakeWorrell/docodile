@@ -28,6 +28,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
             ->addArgument('output',null,'Path to output documentation to', getcwd() .'/output')
             ->addOption('force','f',null,'force output directory deletion')
             ->addOption('theme','b', InputArgument::OPTIONAL,'specify a bootswatch theme', 'darkly')
+            ->addOption('url', 'u', InputArgument::OPTIONAL,'specify your environment variable url', 'http://127.0.0.1:5000')
             ->addOption('highlight', 'j', InputArgument::OPTIONAL,'specify a highlightjs theme', 'darcula');
     }
 
@@ -57,7 +58,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         $twig = $this->getTwig();
 
         $this->prepareOutputDirectory($outputDir, $theme, $input->getOption('force'));
-        $collection = Collection::fromFile($input->getArgument('input'), $this->getExampleParameters());
+        $collection = Collection::fromFile($input->getArgument('input'), $this->getExampleParameters($input->getOption('url')));
 
         if (version_compare($collection->getVersion(),'2.0.0') < 0) {
             throw new ErrorException('No longer supporting postman collections with versions < 2.0.0');
@@ -117,11 +118,14 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
 
     }
 
-    public function getExampleParameters(){
+    /**
+    * @param $url
+    */
+    public function getExampleParameters($url){
         srand(1);
         return array(
             "{{client_id}}" => sha1(rand()),
-            "{{url}}" => "http://192.168.33.99",
+            "{{url}}" => $url,
         );
     }
 
