@@ -89,6 +89,9 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
                     }
 
                     foreach ($request->response as $key => $response) {
+                        if (!property_exists($response, 'code')){
+                            continue;
+                        }
                         if ($response->code >=100 && $response->code <200) {
                             $response->class = 'info';
                         } elseif ($response->code >=200 && $response->code <300) {
