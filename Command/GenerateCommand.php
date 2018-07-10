@@ -158,6 +158,11 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         });
 
         $twig->addFunction($f);
+
+        $twig->addFunction(new \Twig_SimpleFunction("upper", function ($data) {
+            return strtoupper($data);
+        }));
+
         return $twig;
     }
 
