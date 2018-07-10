@@ -60,7 +60,7 @@
                             <th>Example Value</th>
                         </tr>
                         </thead>
-                        {% for parameter in request.request.body.formdata %}
+                        {% for parameter in request.request.response.body.formdata %}
                         <tr>
                             <td>{{parameter.key}}</td>
                             <td>{{parameter.type}}</td>
@@ -90,6 +90,43 @@
             {% for response in request.response %}
             <div class="panel panel-{{response.class}}">
                 <div class="panel-heading">{{response.name}}</div>
+                {% if response.originalRequest.method != 'GET' %}
+                {% if response.originalRequest.body.mode == 'formdata' %}
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Form-data Parameters </div>
+                    <div class="panel-body">
+                        <table class="table table-hover ">
+                            <thead>
+                            <tr>
+                                <th>Key</th>
+                                <th>Type</th>
+                                <th>Example Value</th>
+                            </tr>
+                            </thead>
+                            {% for parameter in response.originalRequest.body.formdata %}
+                            <tr>
+                                <td>{{parameter.key}}</td>
+                                <td>{{parameter.type}}</td>
+                                {% if parameter.type == 'file' %}
+                                <td>{{parameter.src}}</td>
+                                {% else %}
+                                <td>{{parameter.value}}</td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                {% if response.originalRequest.body.mode == 'raw' %}
+                <div class="panel panel-primary">
+                    <div class="panel-heading">JSON</div>
+                    <div class="panel-body">
+                        <pre><code>{{prettify(response.originalRequest.body.raw)}}</code></pre>
+                    </div>
+                </div>
+                {% endif %}
+                {% endif %}
                 <div class="panel-body">
 
                     <pre><code>{{response.code}} {{response.status}}</code></pre>
