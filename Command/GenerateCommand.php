@@ -79,7 +79,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
                         $request->request->url = $request->request->url->raw;
                     }
                     $pageFilename = strtolower($request->request->method) . '_' . str_ireplace(array('/','\\','.',' ','?'),'_', $request->name) . ".html";
-                    $request->page_path = 'requests/' . $pageFilename;
+                    $request->page_path = 'requests/' . $item->name. '-' . $pageFilename;
                     if (!property_exists($request, 'response') ||  !count($request->response)) {
                         $output->writeln("Warning: {$request->name} has no response examples");
                     }
@@ -89,6 +89,10 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
                     }
 
                     foreach ($request->response as $key => $response) {
+                        if (!property_exists($response, 'code')) {
+                            $response->code = 200;
+                        }
+
                         if ($response->code >=100 && $response->code <200) {
                             $response->class = 'info';
                         } elseif ($response->code >=200 && $response->code <300) {
@@ -154,6 +158,11 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         });
 
         $twig->addFunction($f);
+
+        $twig->addFunction(new \Twig_SimpleFunction("upper", function ($data) {
+            return strtoupper($data);
+        }));
+
         return $twig;
     }
 
