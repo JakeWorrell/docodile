@@ -14,7 +14,9 @@
         "symfony/filesystem": "*",
         "twbs/bootstrap": "^3.3",
         "thomaspark/bootswatch": "^3.3",
-        "components/highlightjs": "^9.12"
+        "components/highlightjs": "^9.12",
+        "aptoma/twig-markdown": "^3.0",
+        "michelf/php-markdown": "^1.8"
     },
     "bin": [
         "docodile"

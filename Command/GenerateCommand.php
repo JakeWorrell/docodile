@@ -7,6 +7,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
+use Aptoma\Twig\Extension\MarkdownExtension;
+use Aptoma\Twig\Extension\MarkdownEngine;
+
 class GenerateCommand extends \Symfony\Component\Console\Command\Command {
 
     protected $rootDir;
@@ -137,7 +140,11 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
 
         $twig = new \Twig_Environment($loader, array(
             'cache' => false
-        ));;
+        ));
+
+
+        $engine = new MarkdownEngine\MichelfMarkdownEngine();
+        $twig->addExtension(new MarkdownExtension($engine));
 
         $f = new \Twig_SimpleFunction("querify", function ($data) {
             $string = array();

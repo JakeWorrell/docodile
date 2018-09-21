@@ -24,7 +24,7 @@
                       <tbody>
                         <tr><th>URL</th><td><span class="label label-primary">{{request.request.method}}</span> {{request.request.url}}<br></td></tr>
                         <tr><th>Category</th><td>{{request.folder}}</td></tr>
-                        {% if request.request.description %}<tr><th>Description</th><td>{{request.request.description}}</td></tr>{% endif %}
+                        {% if request.request.description %}<tr><th>Description</th><td>{{request.request.description | markdown }}</td></tr>{% endif %}
                       </tbody>
                     </table>
                 </div>
