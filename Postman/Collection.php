@@ -23,6 +23,7 @@ class Collection {
         preg_match('/(?<=v)\d+(\.\d+)?(\.\d+)?/', $this->data()->info->schema, $collectionVersion);
         return $collectionVersion[0];
     }
+
     public function data()
     {
         return $this->collection;

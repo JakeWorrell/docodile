@@ -72,7 +72,6 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         foreach ($collection->getItems() as $item) {
             if (isset($item->item)) { // this is actually a folder
                 $folders[$item->name]['name'] = $item->name;
-
                 foreach ($item->item as $request) {
                     $request->folder = $item->name;
                     if (is_object($request->request->url)){
@@ -87,8 +86,8 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
                     if($request->request->method=="GET" && isset($request->request->body->formdata)) {
                         $output->writeln("Warning: {$request->name} has form-data parameters defined but is a GET request");
                     }
-
                     foreach ($request->response as $key => $response) {
+
                         if ($response->code >=100 && $response->code <200) {
                             $response->class = 'info';
                         } elseif ($response->code >=200 && $response->code <300) {
@@ -150,7 +149,12 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
         $twig->addFunction($f);
 
         $f = new \Twig_SimpleFunction("prettify", function ($data) {
-            return json_encode(json_decode($data), JSON_PRETTY_PRINT);
+            $pretty = json_encode(json_decode($data), JSON_PRETTY_PRINT);
+            if ($pretty && $pretty !=='null') {
+                return $pretty;
+            } else {
+                return $data;
+            }
         });
 
         $twig->addFunction($f);

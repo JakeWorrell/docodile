@@ -85,8 +85,9 @@
             <div class="panel panel-{{response.class}}">
                 <div class="panel-heading">{{response.name}}</div>
                 <div class="panel-body">
-
+                    <h5>Response Code:</h5>
                     <pre><code>{{response.code}} {{response.status}}</code></pre>
+                    <h5>Response Body:</h5>
                     {{ include('code.html', {code:response.body} ) }}
                 </div>
             </div>
