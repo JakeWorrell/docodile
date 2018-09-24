@@ -56,13 +56,19 @@
                         <thead>
                         <tr>
                             <th>Key</th>
+                            <th>Type</th>
                             <th>Example Value</th>
                         </tr>
                         </thead>
                         {% for parameter in request.request.body.formdata %}
                         <tr>
                             <td>{{parameter.key}}</td>
+                            <td>{{parameter.type}}</td>
+                            {% if parameter.type == 'file' %}
+                            <td>{{parameter.src}}</td>
+                            {% else %}
                             <td>{{parameter.value}}</td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </table>
