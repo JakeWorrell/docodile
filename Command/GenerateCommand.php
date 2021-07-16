@@ -69,6 +69,7 @@ class GenerateCommand extends \Symfony\Component\Console\Command\Command {
 
         $meta = [
             'projectName' => $collection->data()->info->name,
+            'projectDescription' => $collection->data()->info->description,
             'highlightTheme' => $highlightTheme
         ];
 
